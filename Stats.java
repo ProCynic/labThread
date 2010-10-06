@@ -50,6 +50,14 @@ public class Stats{
 	mutex.lock();
 	//float convert to int truncates correctly?
 	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);
+	Hashtable<Integer,Integer> ht;
+	try{
+		ht = BytesPerSecondTable.get(currentSecond);
+		
+	}catch(IndexOutOfBoundException E){
+		ht = new Hashtable<Integer,Integer>();
+		BytesPerSecondTable.set(currentSecondbytes,ht);
+	}
 	
 	mutex.unlock();
     //

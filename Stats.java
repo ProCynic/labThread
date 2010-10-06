@@ -17,7 +17,9 @@ public class Stats{
   
   
   long startTimeMS;
-  ArrayList<Hashtable<Integer,Integer>> BytesPerSecondTable;
+  //HashMap<Integer,HashMap<Integer,Integer>> BytesPerSecondTable;
+  LinkedList<HashMap<Integer,Integer>> BytesPerSecondTable;
+  Set<Integer> flowIds;
   
   SimpleLock mutex;
     //
@@ -37,7 +39,8 @@ public class Stats{
   //-------------------------------------------------
   public Stats(){
     this.startTimeMS = System.currentTimeMillis();
-    this.BytesPerSecondTable = new ArrayList<Hashtable<Integer,Integer>>();
+    //this.BytesPerSecondTable = new HashMap<Integer,HashMap<Integer,Integer>>();
+    this.BytesPerSecondTable = new LinkedList<HashMap<Integer,Integer>>();
     this.mutex = new SimpleLock();
 
   }
@@ -50,6 +53,18 @@ public class Stats{
 	mutex.lock();
 	//float convert to int truncates correctly?
 	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);
+	HashMap<Integer,Integer> hm;
+	while(BytesPerSecondTable.size() < currentSecond)
+		BytesPerSecondTable.add(new HashMap<Integer,Integer>());
+	hm = BytesPerSecondTable.getLast();
+
+	flowIds.add(flowId);
+	Integer current = hm.get(flowId);
+	if (current == null){
+		current =0;
+	}
+	current +=bytes;
+	hm.put(flowId, current);
 	
 	mutex.unlock();
     //
@@ -88,8 +103,23 @@ public class Stats{
   //-------------------------------------------------
   // print -- print stats
   //-------------------------------------------------
-  public void print()
-  {
+  public void print() {
+	  mutex.lock();
+	  ListIterator iter = BytesPerSecondTable.listIterator();
+	  int i = 0;
+	  for(HashMap<Integer,Integer> hm = (HashMap<Integer,Integer>)iter.next(); iter.hasNext(); i++, hm = (HashMap<Integer,Integer>)iter.next()){
+		  String outputString = i + "";
+		  int total = 0;
+		  for(Integer fid : flowIds) {  //same order each time?
+			  outputString += " " + hm.get(fid); 
+			  total += hm.get(fid);
+		  }
+		  outputString += " " + total;
+		  System.out.println(outputString);
+	  }
+	  
+	  mutex.unlock();
+	  
 	  
     //
     // Fill in this code. 

@@ -19,7 +19,7 @@ public class Stats{
   long startTimeMS;
   //HashMap<Integer,HashMap<Integer,Integer>> BytesPerSecondTable;
   LinkedList<HashMap<Integer,Integer>> BytesPerSecondTable;
-  Set<Integer> flowIds;
+  LinkedHashSet<Integer> flowIds;
   
   SimpleLock mutex;
     //
@@ -40,6 +40,7 @@ public class Stats{
   public Stats(){
     this.startTimeMS = System.currentTimeMillis();
     //this.BytesPerSecondTable = new HashMap<Integer,HashMap<Integer,Integer>>();
+    this.flowIds = new LinkedHashSet<Integer>();
     this.BytesPerSecondTable = new LinkedList<HashMap<Integer,Integer>>();
     this.mutex = new SimpleLock();
 
@@ -54,7 +55,7 @@ public class Stats{
 	//float convert to int truncates correctly?
 	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);
 	HashMap<Integer,Integer> hm;
-	while(BytesPerSecondTable.size() < currentSecond)
+	while(BytesPerSecondTable.size() <= currentSecond)
 		BytesPerSecondTable.add(new HashMap<Integer,Integer>());
 	hm = BytesPerSecondTable.getLast();
 
@@ -105,14 +106,19 @@ public class Stats{
   //-------------------------------------------------
   public void print() {
 	  mutex.lock();
-	  ListIterator iter = BytesPerSecondTable.listIterator();
+	  ListIterator<HashMap<Integer,Integer>> iter = BytesPerSecondTable.listIterator();
 	  int i = 0;
-	  for(HashMap<Integer,Integer> hm = (HashMap<Integer,Integer>)iter.next(); iter.hasNext(); i++, hm = (HashMap<Integer,Integer>)iter.next()){
+	  for(HashMap<Integer,Integer> hm = iter.next(); iter.hasNext(); i++, hm = iter.next()){
 		  String outputString = i + "";
 		  int total = 0;
+		  
 		  for(Integer fid : flowIds) {  //same order each time?
-			  outputString += " " + hm.get(fid); 
-			  total += hm.get(fid);
+			  Integer numBytes = hm.get(fid);
+			  if(numBytes == null){
+				  numBytes=0;
+			  }
+			  outputString += " " + numBytes; 
+			  total += numBytes;
 		  }
 		  outputString += " " + total;
 		  System.out.println(outputString);
@@ -154,7 +160,7 @@ public class Stats{
     // standards will receive little or
     // no credit.
     //
-    System.out.println("Stats: TBD");
+    
   }
 
 

@@ -19,7 +19,7 @@ public class MaxNWScheduler implements NWScheduler{
   AlarmThread at;
   SimpleLock mutex;
   Condition c1;
-  long nextSecond;
+  
   long nextTurn;
   long m;
   //
@@ -32,12 +32,12 @@ public class MaxNWScheduler implements NWScheduler{
   //-------------------------------------------------
   public MaxNWScheduler(long bytesPerSec)
   {
-	mutex = new SimpleLock();
-	c1 = mutex.newCondition();
-    at = new AlarmThread(this);
-    at.start();
-    m = bytesPerSec;
-    nextTurn = System.currentTimeMillis();
+	this.mutex = new SimpleLock();
+	this.c1 = mutex.newCondition();
+	this.at = new AlarmThread(this);
+	this.at.start();
+	this.m = bytesPerSec;
+	this.nextTurn = System.currentTimeMillis();
   }
 
   //-------------------------------------------------
@@ -85,6 +85,8 @@ public class MaxNWScheduler implements NWScheduler{
   }
   
   public long getNextTurn(){
+	  mutex.lock();
+	  mutex.unlock();
 	  return nextTurn;
   }
 }

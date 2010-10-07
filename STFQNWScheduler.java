@@ -20,20 +20,26 @@ import java.util.concurrent.locks.Condition;
 public class STFQNWScheduler implements NWScheduler{
 
   STFQAlarmThread at;
-  //
-  // Fill in code
-  //
-
-
+  SimpleLock mutex;
+  Condition c1;
+  long CurrentVirtualTime;
+  long maxBW;
+  long nextSecond;
+  long nextTurn;
+  long m;
 
   //-------------------------------------------------
   // Constructor
   //-------------------------------------------------
   public STFQNWScheduler(long bytesPerSec)
   {
-    assert(false); //TBD
-    at = new STFQAlarmThread(this);
-    at.start();
+	this.nextTurn = System.currentTimeMillis();
+	this.CurrentVirtualTime = 0;
+	this.maxBW = bytesPerSec; 
+	this.mutex = new SimpleLock();
+	this.c1 = mutex.newCondition();
+    this.at = new STFQAlarmThread(this);
+    this.at.start();
   }
 
   //-------------------------------------------------
@@ -51,7 +57,20 @@ public class STFQNWScheduler implements NWScheduler{
   //-------------------------------------------------
   public void waitMyTurn(int flowId, float weight, int lenToSend)
   {
-    assert(false); //TBD
+	  mutex.lock();
+		while(System.currentTimeMillis() < nextTurn) {
+			try {
+				//at.run();
+				c1.await();
+			}catch (InterruptedException E) {
+				//do something I guess
+			}
+		}
+		nextTurn = System.currentTimeMillis() + 1000*lenToSend/m;
+
+		mutex.unlock();
+		//System.out.println("Sending: " + lenToSend);
+	    return;
   }
 
 
@@ -61,7 +80,17 @@ public class STFQNWScheduler implements NWScheduler{
   // new public method that AlarmThread will
   // call.
   //
-
+  public void procede() {
+	  mutex.lock();
+	  c1.signal();
+	  mutex.unlock();
+  }
+  
+  public long getNextTurn(){
+	  mutex.lock();
+	  mutex.unlock();
+	  return nextTurn;
+  }
 
 
 

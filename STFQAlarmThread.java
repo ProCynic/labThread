@@ -27,7 +27,17 @@ public class STFQAlarmThread extends Thread{
   //-------------------------------------------------
   public void run()
   {
-
+	  while(true) {
+		  long deadline = scheduler.getNextTurn() - System.currentTimeMillis();
+		  if(deadline < 0)
+			  deadline = 0;
+		  //System.out.println("Sleeping for " + deadline);
+		  try {
+			  Thread.sleep(deadline);
+		  } catch (InterruptedException E) {
+		  }
+		  scheduler.procede();
+	  }
     // Main loop:
     // Get next deadline from scheduler, sleep until
     // the deadline, call the scheduler.

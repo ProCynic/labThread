@@ -29,11 +29,12 @@ public class AlarmThread extends Thread{
   public void run() {
 	  while(true) {
 		  long deadline = scheduler.getNextTurn() - System.currentTimeMillis();
-		  deadline = (deadline>0 ? deadline : 0);
+		  if(deadline < 0)
+			  deadline = 0;
+		  //System.out.println("Sleeping for " + deadline);
 		  try {
 			  Thread.sleep(deadline);
 		  } catch (InterruptedException E) {
-			  continue;
 		  }
 		  scheduler.procede();
 	  }

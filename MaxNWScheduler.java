@@ -55,24 +55,16 @@ public class MaxNWScheduler implements NWScheduler{
   //-------------------------------------------------
   public void waitMyTurn(int flowId, float weight, int lenToSend) {
 	mutex.lock();
-	/*
-	while(!OkToRun){
-		at.run();
-		c1.await();
-	}
-	return;
-	*/
 	while(System.currentTimeMillis() < nextTurn) {
 		try {
+			//at.run();
 			c1.await();
 		}catch (InterruptedException E) {
 			//do something I guess
 		}
 	}
-	nextTurn = System.currentTimeMillis() + lenToSend/m;
-	/*while(false) {
-		c1.await();
-	}*/
+	nextTurn = System.currentTimeMillis() + 1000*lenToSend/m;
+
 	mutex.unlock();
 	//System.out.println("Sending: " + lenToSend);
     return;

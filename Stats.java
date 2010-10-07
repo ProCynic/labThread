@@ -52,7 +52,7 @@ public class Stats{
   public void update(int flowId, int bytes)
   {
 	mutex.lock();
-	System.out.println("Updating");
+	//System.out.println("Updating");
 	//float convert to int truncates correctly?
 	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);
 	HashMap<Integer,Integer> hm;
@@ -108,15 +108,13 @@ public class Stats{
   //-------------------------------------------------
   public void print() {
 	  mutex.lock();
-      System.out.println("here");
-
 	  ListIterator<HashMap<Integer,Integer>> iter = BytesPerSecondTable.listIterator();
 	  int i = 0;
-	  for(HashMap<Integer,Integer> hm = iter.next(); iter.hasNext(); i++, hm = iter.next()){
+	  for(HashMap<Integer,Integer> hm = null; iter.hasNext(); i++){
 		  StringBuilder sb = new StringBuilder();
 		  sb.append(i);
 		  int total = 0;
-		  
+		  hm = iter.next();
 		  for(Integer fid : flowIds) {  //same order each time?
 			  Integer numBytes = hm.get(fid);
 			  if(numBytes == null){

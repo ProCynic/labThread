@@ -61,19 +61,22 @@ public class STFQNWScheduler implements NWScheduler{
 	public void waitMyTurn(int flowId, float weight, int lenToSend)
 	{
 		mutex.lock();
+		CurrentVirtualTime = Collections.max(flowFinishTags.values());
 		if(!flowFinishTags.containsKey(flowId))
 			flowFinishTags.put(flowId, (long)0);
 
-
+		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to be 
+		long finishTag = startTag + (long)(lenToSend / weight);
+		
 		while(System.currentTimeMillis() < nextTurn) {
+			CurrentVirtualTime = startTag;
 			try {
 				c1.await();
 			}catch (InterruptedException E) {
 				//do something I guess
 			}
 		}
-		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to be 
-		long finishTag = startTag + (long)(lenToSend / weight);
+		
 		flowFinishTags.put(flowId, finishTag);
 		
 		while(startTag > CurrentVirtualTime) {
@@ -84,8 +87,8 @@ public class STFQNWScheduler implements NWScheduler{
 			}
 		}
 		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
-		if(finishTag > CurrentVirtualTime)
-			CurrentVirtualTime = finishTag;
+//		if(finishTag > CurrentVirtualTime)
+//			CurrentVirtualTime = finishTag;
 		
 
 

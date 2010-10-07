@@ -52,11 +52,13 @@ public class Stats{
   public void update(int flowId, int bytes)
   {
 	mutex.lock();
+	System.out.println("Updating");
 	//float convert to int truncates correctly?
 	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);
 	HashMap<Integer,Integer> hm;
-	while(BytesPerSecondTable.size() <= currentSecond)
+	while(BytesPerSecondTable.size() <= currentSecond){
 		BytesPerSecondTable.add(new HashMap<Integer,Integer>());
+	}
 	hm = BytesPerSecondTable.getLast();
 
 	flowIds.add(flowId);
@@ -106,10 +108,13 @@ public class Stats{
   //-------------------------------------------------
   public void print() {
 	  mutex.lock();
+      System.out.println("here");
+
 	  ListIterator<HashMap<Integer,Integer>> iter = BytesPerSecondTable.listIterator();
 	  int i = 0;
 	  for(HashMap<Integer,Integer> hm = iter.next(); iter.hasNext(); i++, hm = iter.next()){
-		  String outputString = i + "";
+		  StringBuilder sb = new StringBuilder();
+		  sb.append(i);
 		  int total = 0;
 		  
 		  for(Integer fid : flowIds) {  //same order each time?
@@ -117,11 +122,11 @@ public class Stats{
 			  if(numBytes == null){
 				  numBytes=0;
 			  }
-			  outputString += " " + numBytes; 
+			  sb.append(" " + numBytes); 
 			  total += numBytes;
 		  }
-		  outputString += " " + total;
-		  System.out.println(outputString);
+		  sb.append(" " + total);
+		  System.out.println(sb.toString());
 	  }
 	  
 	  mutex.unlock();

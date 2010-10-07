@@ -17,6 +17,11 @@ import java.util.concurrent.locks.Condition;
 public class MaxNWScheduler implements NWScheduler{
 
   AlarmThread at;
+  SimpleLock mutex;
+  Condition c1;
+  long nextSecond;
+  long nextTurn;
+  long m;
   //
   // Fill in code
   //
@@ -27,9 +32,12 @@ public class MaxNWScheduler implements NWScheduler{
   //-------------------------------------------------
   public MaxNWScheduler(long bytesPerSec)
   {
-    assert(false); //TBD
+	mutex = new SimpleLock();
+	c1 = mutex.newCondition();
     at = new AlarmThread(this);
     at.start();
+    m = bytesPerSec;
+    nextTurn = System.currentTimeMillis();
   }
 
   //-------------------------------------------------
@@ -45,9 +53,29 @@ public class MaxNWScheduler implements NWScheduler{
   // Instead, you must rely on an alarmThread to 
   // signal when it is OK to proceed.
   //-------------------------------------------------
-  public void waitMyTurn(int flowId, float weight, int lenToSend)
-  {
-    assert(false); //TBD
+  public void waitMyTurn(int flowId, float weight, int lenToSend) {
+	mutex.lock();
+	/*
+	while(!OkToRun){
+		at.run();
+		c1.await();
+	}
+	return;
+	*/
+	while(System.currentTimeMillis() < nextTurn) {
+		try {
+			c1.await();
+		}catch (InterruptedException E) {
+			//do something I guess
+		}
+	}
+	nextTurn = System.currentTimeMillis() + lenToSend/m;
+	/*while(false) {
+		c1.await();
+	}*/
+	mutex.unlock();
+	//System.out.println("Sending: " + lenToSend);
+    return;
   }
 
 
@@ -57,5 +85,14 @@ public class MaxNWScheduler implements NWScheduler{
   // new public method that AlarmThread will
   // call.
   //
-
+  
+  public void procede() {
+	  mutex.lock();
+	  c1.signal();
+	  mutex.unlock();
+  }
+  
+  public long getNextTurn(){
+	  return nextTurn;
+  }
 }

@@ -26,9 +26,17 @@ public class AlarmThread extends Thread{
   // run -- thread main loop. Invoked by jvm when
   // thread.start() is called.
   //-------------------------------------------------
-  public void run()
-  {
-
+  public void run() {
+	  while(true) {
+		  long deadline = scheduler.getNextTurn() - System.currentTimeMillis();
+		  deadline = (deadline>0 ? deadline : 0);
+		  try {
+			  Thread.sleep(deadline);
+		  } catch (InterruptedException E) {
+			  continue;
+		  }
+		  scheduler.procede();
+	  }
     // Main loop:
     // Get next deadline from scheduler, sleep until
     // the deadline, call the scheduler.
@@ -36,6 +44,8 @@ public class AlarmThread extends Thread{
     // NOTE: This is the *ONE* place in part 2 of the
     // project where you will call Thread.sleep
     //
+	  
+	  
 
 
   }

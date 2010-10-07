@@ -18,6 +18,7 @@ public class SynchronizedOutputStream{
   OutputStream os;
   SimpleLock mutex;
   
+  
     
 
   //-------------------------------------------------
@@ -66,6 +67,8 @@ public class SynchronizedOutputStream{
     throws IOException
   {
     mutex.lock();
+    
+    
     
     os.write(b);
     

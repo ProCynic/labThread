@@ -22,6 +22,7 @@ public class STFQNWScheduler implements NWScheduler{
   STFQAlarmThread at;
   SimpleLock mutex;
   Condition c1;
+  Condition c2; 
   long CurrentVirtualTime;
   long maxBW;
   long nextSecond;
@@ -38,6 +39,7 @@ public class STFQNWScheduler implements NWScheduler{
 	this.maxBW = bytesPerSec; 
 	this.mutex = new SimpleLock();
 	this.c1 = mutex.newCondition();
+	this.c2 = mutex.newCondition();
     this.at = new STFQAlarmThread(this);
     this.at.start();
   }

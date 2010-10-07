@@ -26,10 +26,8 @@ public class STFQNWScheduler implements NWScheduler{
 	Condition c2; 
 	long CurrentVirtualTime;
 	long maxBW;
-	long nextSecond;
 	long nextTurn;
 	HashMap<Integer,Long> flowFinishTags;
-	int buffId;
 
 	//-------------------------------------------------
 	// Constructor
@@ -66,6 +64,7 @@ public class STFQNWScheduler implements NWScheduler{
 		if(!flowFinishTags.containsKey(flowId))
 			flowFinishTags.put(flowId, (long)0);
 
+
 		while(System.currentTimeMillis() < nextTurn) {
 			try {
 				c1.await();
@@ -76,6 +75,7 @@ public class STFQNWScheduler implements NWScheduler{
 		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to be 
 		long finishTag = startTag + (long)(lenToSend / weight);
 		flowFinishTags.put(flowId, finishTag);
+		
 		while(startTag > CurrentVirtualTime) {
 			try {
 				c2.await();

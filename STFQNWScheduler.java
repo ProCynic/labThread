@@ -28,6 +28,7 @@ public class STFQNWScheduler implements NWScheduler{
 	long maxBW;
 	long nextTurn;
 	HashMap<Integer,Long> flowFinishTags;
+	TreeSet<Long> waitingStartTags;
 
 	//-------------------------------------------------
 	// Constructor
@@ -41,6 +42,7 @@ public class STFQNWScheduler implements NWScheduler{
 		this.c1 = mutex.newCondition();
 		this.c2 = mutex.newCondition();
 		this.flowFinishTags = new HashMap<Integer,Long>();
+		this.waitingStartTags = new TreeSet<Long>();
 		this.at = new STFQAlarmThread(this);
 		this.at.start();
 	}
@@ -61,13 +63,16 @@ public class STFQNWScheduler implements NWScheduler{
 	public void waitMyTurn(int flowId, float weight, int lenToSend)
 	{
 		mutex.lock();
-		CurrentVirtualTime = Collections.max(flowFinishTags.values());
+
+		//initialize the last finish tag for this flow, if not done already.
 		if(!flowFinishTags.containsKey(flowId))
 			flowFinishTags.put(flowId, (long)0);
 
-		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to be 
+
+		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to exist
 		long finishTag = startTag + (long)(lenToSend / weight);
-		
+
+
 		while(System.currentTimeMillis() < nextTurn) {
 			CurrentVirtualTime = startTag;
 			try {
@@ -76,21 +81,27 @@ public class STFQNWScheduler implements NWScheduler{
 				//do something I guess
 			}
 		}
+
+		long lowestStartTag = startTag;
 		
-		flowFinishTags.put(flowId, finishTag);
+		if(!waitingStartTags.isEmpty())
+			lowestStartTag = waitingStartTags.first();
 		
-		while(startTag > CurrentVirtualTime) {
+		while(startTag > lowestStartTag) {
+			CurrentVirtualTime = startTag;
+			waitingStartTags.add(startTag);
 			try {
 				c2.await();
 			}catch (InterruptedException E) {
 				//do something I guess
 			}
 		}
-		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
-//		if(finishTag > CurrentVirtualTime)
-//			CurrentVirtualTime = finishTag;
-		
 
+		flowFinishTags.put(flowId, finishTag);  // update the latest finishTag for this flow
+		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
+		CurrentVirtualTime = Collections.max(flowFinishTags.values());
+		if(!waitingStartTags.isEmpty())
+			waitingStartTags.remove(lowestStartTag);
 
 		mutex.unlock();
 		//System.out.println("Sending: " + lenToSend);

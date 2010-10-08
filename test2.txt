@@ -1,0 +1,32 @@
+Creating startTag: 0 0
+Writing: 0 0
+Creating startTag: 1 8192
+Creating startTag: 2 8192
+Creating startTag: 3 8192
+Creating startTag: 5 8192
+Creating startTag: 4 8192
+Creating startTag: 6 8192
+Creating startTag: 7 8192
+Creating startTag: 8 8192
+Creating startTag: 9 8192
+Creating startTag: 0 8192
+Writing: 2 8192
+Creating startTag: 2 10922
+Writing: 3 8192
+Creating startTag: 3 10922
+Writing: 5 8192
+Creating startTag: 5 10922
+Writing: 7 8192
+Creating startTag: 7 10922
+Writing: 6 8192
+Creating startTag: 6 10922
+Writing: 8 8192
+Creating startTag: 8 10922
+Writing: 9 8192
+Creating startTag: 9 10922
+Writing: 0 8192
+Creating startTag: 0 16384
+Writing: 4 8192
+Creating startTag: 4 16384
+Writing: 1 8192
+Creating startTag: 1 16384

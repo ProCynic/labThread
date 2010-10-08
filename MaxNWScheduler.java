@@ -58,7 +58,7 @@ public class MaxNWScheduler implements NWScheduler{
 		while(System.currentTimeMillis() < nextTurn) {  // While it's not time for the next write yet:
 			c1.awaitUninterruptibly();  //wait.  will eventually end up in alarmthread
 		}
-		nextTurn = System.currentTimeMillis() + (1000*lenToSend)/m;  // The time of the next write
+		nextTurn = System.currentTimeMillis() + (long)((1000*lenToSend)/m * .95);  // The time of the next write
 		mutex.unlock();
 		return;
 	}

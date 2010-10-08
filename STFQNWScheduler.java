@@ -30,6 +30,7 @@ public class STFQNWScheduler implements NWScheduler{
 	HashMap<Integer,Long> flowFinishTags;
 	ArrayList<Long> waitingStartTags;
 
+
 	//-------------------------------------------------
 	// Constructor
 	//-------------------------------------------------
@@ -43,6 +44,7 @@ public class STFQNWScheduler implements NWScheduler{
 		this.c2 = mutex.newCondition();
 		this.flowFinishTags = new HashMap<Integer,Long>();
 		this.waitingStartTags = new ArrayList<Long>();
+
 		this.at = new STFQAlarmThread(this);
 		this.at.start();
 	}
@@ -132,8 +134,13 @@ public class STFQNWScheduler implements NWScheduler{
 	public void procede() {
 		mutex.lock();
 		c1.signal();
+<<<<<<< HEAD
 		//System.out.println("Signaling c2");
 		c2.signalAll();
+=======
+		System.out.println("Signaling c2");
+		c2.signal();
+>>>>>>> 29e338a2a6df5758072c6437cf3d4fcd74fd0acd
 		mutex.unlock();
 	}
 

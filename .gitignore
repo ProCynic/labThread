@@ -1,0 +1,6 @@
+*.class
+.*
+*~
+*.pdf
+data?
+*.pyc

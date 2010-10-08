@@ -66,24 +66,21 @@ public class STFQNWScheduler implements NWScheduler{
 	public void waitMyTurn(int flowId, float weight, int lenToSend)
 	{
 		mutex.lock();
-		//System.out.println("flowId: " + flowId);
-		//System.out.println("Num Waiting Threads: " + waitingStartTags.size());
 
 		//initialize the last finish tag for this flow, if not done already.
 		if(!flowFinishTags.containsKey(flowId))
 			flowFinishTags.put(flowId, (long)0);
 
 		// Update virtualTime if there are no waiting buffers
-		if(waitingStartTags.isEmpty()) {
-			//System.out.println("Nothing Waiting");
+		if(waitingStartTags.isEmpty())
 			CurrentVirtualTime = Collections.max(flowFinishTags.values());
-		} else 
+		else 
 			CurrentVirtualTime = lastStartTag;
 
 		// this block essentially creates a buffer
 		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to exist
 		assert(startTag >= CurrentVirtualTime);
-		System.out.println("Creating startTag: " + flowId + " " + startTag + " " + lenToSend);
+		//System.out.println("Creating startTag: " + flowId + " " + startTag + " " + lenToSend);
 		long finishTag = startTag + (long)(lenToSend / weight);
 		flowFinishTags.put(flowId, finishTag);  // update the latest finishTag for this flow
 		waitingStartTags.add(startTag);
@@ -99,13 +96,8 @@ public class STFQNWScheduler implements NWScheduler{
 			}
 		}
 
-
-		long lowestStartTag;
-
-		//		if(waitingStartTags.isEmpty())
-		//			lowestStartTag = startTag;
-		//		else
-		lowestStartTag = waitingStartTags.get(0);
+		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
+		long lowestStartTag = waitingStartTags.get(0);
 
 		while(startTag > lowestStartTag) {
 			try {
@@ -119,8 +111,8 @@ public class STFQNWScheduler implements NWScheduler{
 		}
 
 		waitingStartTags.remove(0);
-		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
-		System.out.println("Writing: " + flowId + " " + startTag + " " + lenToSend);
+		//nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
+		//System.out.println("Writing: " + flowId + " " + startTag + " " + lenToSend);
 		lastStartTag = startTag;
 		mutex.unlock();
 		return;

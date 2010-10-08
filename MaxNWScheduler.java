@@ -55,15 +55,14 @@ public class MaxNWScheduler implements NWScheduler{
   //-------------------------------------------------
   public void waitMyTurn(int flowId, float weight, int lenToSend) {
 	mutex.lock();
-	while(System.currentTimeMillis() < nextTurn) {
+	while(System.currentTimeMillis() < nextTurn) {  // While it's not time for the next write yet:
 		try {
-			//at.run();
-			c1.await();
+			c1.await();  //wait.  will eventually end up in alarmthread
 		}catch (InterruptedException E) {
 			//do something I guess
 		}
 	}
-	nextTurn = System.currentTimeMillis() + 1000*lenToSend/m;
+	nextTurn = System.currentTimeMillis() + 1000*lenToSend/m;  // The time of the next write
 
 	mutex.unlock();
 	//System.out.println("Sending: " + lenToSend);
@@ -78,12 +77,14 @@ public class MaxNWScheduler implements NWScheduler{
   // call.
   //
   
-  public void procede() {
+  // signal some waiting write to proceed
+  public void proceed() {
 	  mutex.lock();
 	  c1.signal();
 	  mutex.unlock();
   }
   
+  //return the time of the next write.
   public long getNextTurn(){
 	  mutex.lock();
 	  mutex.unlock();

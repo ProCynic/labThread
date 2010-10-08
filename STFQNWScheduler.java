@@ -63,11 +63,13 @@ public class STFQNWScheduler implements NWScheduler{
 	public void waitMyTurn(int flowId, float weight, int lenToSend)
 	{
 		mutex.lock();
+		//System.out.println("flowId: " + flowId);
+		//System.out.println("Num Waiting Threads: " + waitingStartTags.size());
 
 		//initialize the last finish tag for this flow, if not done already.
 		if(!flowFinishTags.containsKey(flowId))
 			flowFinishTags.put(flowId, (long)0);
-		
+
 		// Update virtualTime if there are no waiting buffers
 		if(waitingStartTags.isEmpty())
 			CurrentVirtualTime = Collections.max(flowFinishTags.values());
@@ -83,8 +85,6 @@ public class STFQNWScheduler implements NWScheduler{
 
 
 		while(System.currentTimeMillis() < nextTurn) {
-
-			assert(finishTag > flowFinishTags.get(flowId));
 			try {
 				c1.await();
 			}catch (InterruptedException E) {
@@ -92,9 +92,12 @@ public class STFQNWScheduler implements NWScheduler{
 			}
 		}
 
-		long lowestStartTag = startTag;
+		long lowestStartTag;
 
-		lowestStartTag = waitingStartTags.first();
+		if(waitingStartTags.isEmpty())
+			lowestStartTag = startTag;
+		else
+			lowestStartTag = waitingStartTags.first();
 
 		while(startTag > lowestStartTag) {
 			try {

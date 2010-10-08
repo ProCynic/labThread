@@ -16,10 +16,9 @@ import java.util.*;
 public class Stats{
   
   
-  long startTimeMS;
-  //HashMap<Integer,HashMap<Integer,Integer>> BytesPerSecondTable;
-  LinkedList<HashMap<Integer,Integer>> BytesPerSecondTable;
-  LinkedHashSet<Integer> flowIds;
+  long startTimeMS;  // The time in which the stats object is created
+  LinkedList<HashMap<Integer,Integer>> BytesPerSecondTable;  // A list of hashmaps.  One hashmap per sec containing bandwidth per flow for that sec.
+  LinkedHashSet<Integer> flowIds;  // The set of active flowIds
   
   SimpleLock mutex;
     //
@@ -39,7 +38,6 @@ public class Stats{
   //-------------------------------------------------
   public Stats(){
     this.startTimeMS = System.currentTimeMillis();
-    //this.BytesPerSecondTable = new HashMap<Integer,HashMap<Integer,Integer>>();
     this.flowIds = new LinkedHashSet<Integer>();
     this.BytesPerSecondTable = new LinkedList<HashMap<Integer,Integer>>();
     this.mutex = new SimpleLock();
@@ -52,13 +50,15 @@ public class Stats{
   public void update(int flowId, int bytes)
   {
 	mutex.lock();
-	//System.out.println("Updating");
-	//float convert to int truncates correctly?
 	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);
-	HashMap<Integer,Integer> hm;
+	HashMap<Integer,Integer> hm;  // A hashmap to contain bandwidth per flow for this second
+	
+	// fill out the linked list.  Accounts for seconds with no data.
 	while(BytesPerSecondTable.size() <= currentSecond){
 		BytesPerSecondTable.add(new HashMap<Integer,Integer>());
 	}
+	
+	// hm now is the hashmap 
 	hm = BytesPerSecondTable.getLast();
 
 	flowIds.add(flowId);

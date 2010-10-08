@@ -10,6 +10,8 @@
  * (C) 2007 Mike Dahlin
  *
  */
+
+// The only thing needed for this file is to wrap each function body with lock/unlock.
 import java.io.OutputStream;
 import java.io.IOException;
 

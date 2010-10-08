@@ -63,7 +63,7 @@ public class STFQNWScheduler implements NWScheduler{
 	public void waitMyTurn(int flowId, float weight, int lenToSend)
 	{
 		mutex.lock();
-		//System.out.println("flowId: " + flowId);
+		System.out.println("flowId: " + flowId);
 		//System.out.println("Num Waiting Threads: " + waitingStartTags.size());
 
 		//initialize the last finish tag for this flow, if not done already.
@@ -101,6 +101,8 @@ public class STFQNWScheduler implements NWScheduler{
 
 		while(startTag > lowestStartTag) {
 			try {
+				System.out.println("MyTag: " + startTag);
+				System.out.println("LowestTag: " + lowestStartTag);
 				c2.await();
 			}catch (InterruptedException E) {
 				//do something I guess
@@ -125,6 +127,7 @@ public class STFQNWScheduler implements NWScheduler{
 	public void procede() {
 		mutex.lock();
 		c1.signal();
+		System.out.println("Signaling c2");
 		c2.signal();
 		mutex.unlock();
 	}

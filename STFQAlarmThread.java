@@ -33,7 +33,7 @@ public class STFQAlarmThread extends Thread{
 			  deadline = 0;
 		  //System.out.println("Sleeping for " + deadline);
 		  try {
-			  Thread.sleep(deadline+20);
+			  Thread.sleep(deadline);
 		  } catch (InterruptedException E) {
 		  }
 		  scheduler.procede();

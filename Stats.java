@@ -50,7 +50,7 @@ public class Stats{
   public void update(int flowId, int bytes)
   {
 	mutex.lock();
-	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);
+	int currentSecond = (int)((System.currentTimeMillis()-this.startTimeMS)/1000);  //figure out which second we're in
 	HashMap<Integer,Integer> hm;  // A hashmap to contain bandwidth per flow for this second
 	
 	// fill out the linked list.  Accounts for seconds with no data.
@@ -58,16 +58,16 @@ public class Stats{
 		BytesPerSecondTable.add(new HashMap<Integer,Integer>());
 	}
 	
-	// hm now is the hashmap 
+	// hm now the hashmap for this second
 	hm = BytesPerSecondTable.getLast();
 
-	flowIds.add(flowId);
-	Integer current = hm.get(flowId);
-	if (current == null){
+	flowIds.add(flowId);  // flowIds is a set.
+	Integer current = hm.get(flowId);  // The number of bytes sent this second before this update
+	if (current == null){ //which is zero if there's nothing in the hashmap for that flowId
 		current =0;
 	}
 	current +=bytes;
-	hm.put(flowId, current);
+	hm.put(flowId, current);  // put the new value back in the hashmap
 	
 	mutex.unlock();
     //
@@ -108,10 +108,11 @@ public class Stats{
   //-------------------------------------------------
   public void print() {
 	  mutex.lock();
-	  ListIterator<HashMap<Integer,Integer>> iter = BytesPerSecondTable.listIterator();
-	  int i = 0;
-	  for(HashMap<Integer,Integer> hm = null; iter.hasNext(); i++){
-		  StringBuilder sb = new StringBuilder();
+	  
+	  ListIterator<HashMap<Integer,Integer>> iter = BytesPerSecondTable.listIterator();  // Iterates over all the hashmaps.  (one hashmap per second)
+	  int i = 0;  // The second number
+	  for(HashMap<Integer,Integer> hm = null; iter.hasNext(); i++){  // For every second:
+		  StringBuilder sb = new StringBuilder();  // append the second number, then the bytes for each flow.
 		  sb.append(i);
 		  int total = 0;
 		  hm = iter.next();

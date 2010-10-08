@@ -28,15 +28,14 @@ public class AlarmThread extends Thread{
   //-------------------------------------------------
   public void run() {
 	  while(true) {
-		  long deadline = scheduler.getNextTurn() - System.currentTimeMillis();
+		  long deadline = scheduler.getNextTurn() - System.currentTimeMillis();  // Get the time of the next write
 		  if(deadline < 0)
 			  deadline = 0;
-		  //System.out.println("Sleeping for " + deadline);
 		  try {
-			  Thread.sleep(deadline);
-		  } catch (InterruptedException E) {
+			  Thread.sleep(deadline);  // Sleep until then
+		  } catch (InterruptedException E) {  
 		  }
-		  scheduler.procede();
+		  scheduler.proceed(); // signal some write to proceed
 	  }
     // Main loop:
     // Get next deadline from scheduler, sleep until

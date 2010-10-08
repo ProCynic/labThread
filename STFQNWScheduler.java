@@ -73,14 +73,16 @@ public class STFQNWScheduler implements NWScheduler{
 			flowFinishTags.put(flowId, (long)0);
 
 		// Update virtualTime if there are no waiting buffers
-		if(waitingStartTags.isEmpty())
+		if(waitingStartTags.isEmpty()) {
+			//System.out.println("Nothing Waiting");
 			CurrentVirtualTime = Collections.max(flowFinishTags.values());
+		}
 
 
 		// this block essentially creates a buffer
 		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to exist
 		assert(startTag >= CurrentVirtualTime);
-//		System.out.println("Creating startTag: " + flowId + " " + startTag + " BufferSize: " + lenToSend);
+//		System.out.println("Creating startTag: " + flowId + " " + startTag + " " + lenToSend);
 		long finishTag = startTag + (long)(lenToSend / weight);
 		flowFinishTags.put(flowId, finishTag);  // update the latest finishTag for this flow
 		waitingStartTags.add(startTag);
@@ -96,7 +98,6 @@ public class STFQNWScheduler implements NWScheduler{
 				//do something I guess
 			}
 		}
-		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
 
 		long lowestStartTag;
 
@@ -117,10 +118,9 @@ public class STFQNWScheduler implements NWScheduler{
 		}
 
 		waitingStartTags.remove(0);
-
-		System.out.println("Writing: " + flowId + " " + startTag + " BufferSize: " + lenToSend);
+		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
+		System.out.println("Writing: " + flowId + " " + startTag + " " + lenToSend);
 		mutex.unlock();
-		//System.out.println("Sending: " + lenToSend);
 		return;
 	}
 

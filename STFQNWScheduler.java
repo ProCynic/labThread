@@ -80,7 +80,7 @@ public class STFQNWScheduler implements NWScheduler{
 		// this block essentially creates a buffer
 		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to exist
 		assert(startTag >= CurrentVirtualTime);
-		System.out.println("Creating startTag: " + flowId + " " + startTag);
+//		System.out.println("Creating startTag: " + flowId + " " + startTag + " BufferSize: " + lenToSend);
 		long finishTag = startTag + (long)(lenToSend / weight);
 		flowFinishTags.put(flowId, finishTag);  // update the latest finishTag for this flow
 		waitingStartTags.add(startTag);
@@ -118,7 +118,7 @@ public class STFQNWScheduler implements NWScheduler{
 
 		waitingStartTags.remove(0);
 
-		System.out.println("Writing: " + flowId + " " + startTag);
+		System.out.println("Writing: " + flowId + " " + startTag + " BufferSize: " + lenToSend);
 		mutex.unlock();
 		//System.out.println("Sending: " + lenToSend);
 		return;
@@ -134,16 +134,11 @@ public class STFQNWScheduler implements NWScheduler{
 	public void procede() {
 		mutex.lock();
 		c1.signal();
-<<<<<<< HEAD
 		//System.out.println("Signaling c2");
 		c2.signalAll();
-=======
-		System.out.println("Signaling c2");
-		c2.signal();
->>>>>>> 29e338a2a6df5758072c6437cf3d4fcd74fd0acd
 		mutex.unlock();
 	}
-
+//
 	public long getNextTurn(){
 		mutex.lock();
 		mutex.unlock();

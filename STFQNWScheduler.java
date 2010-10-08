@@ -67,14 +67,24 @@ public class STFQNWScheduler implements NWScheduler{
 		//initialize the last finish tag for this flow, if not done already.
 		if(!flowFinishTags.containsKey(flowId))
 			flowFinishTags.put(flowId, (long)0);
+		
+		// Update virtualTime if there are no waiting buffers
+		if(waitingStartTags.isEmpty())
+			CurrentVirtualTime = Collections.max(flowFinishTags.values());
 
 
+		// this block essentially creates a buffer
 		long startTag = Math.max(flowFinishTags.get(flowId),CurrentVirtualTime);  //Guaranteed to exist
 		long finishTag = startTag + (long)(lenToSend / weight);
+		flowFinishTags.put(flowId, finishTag);  // update the latest finishTag for this flow
+		waitingStartTags.add(startTag);
+		CurrentVirtualTime = startTag;
+
 
 
 		while(System.currentTimeMillis() < nextTurn) {
-			CurrentVirtualTime = startTag;
+
+			assert(finishTag > flowFinishTags.get(flowId));
 			try {
 				c1.await();
 			}catch (InterruptedException E) {
@@ -83,13 +93,10 @@ public class STFQNWScheduler implements NWScheduler{
 		}
 
 		long lowestStartTag = startTag;
-		
-		if(!waitingStartTags.isEmpty())
-			lowestStartTag = waitingStartTags.first();
-		
+
+		lowestStartTag = waitingStartTags.first();
+
 		while(startTag > lowestStartTag) {
-			CurrentVirtualTime = startTag;
-			waitingStartTags.add(startTag);
 			try {
 				c2.await();
 			}catch (InterruptedException E) {
@@ -97,11 +104,8 @@ public class STFQNWScheduler implements NWScheduler{
 			}
 		}
 
-		flowFinishTags.put(flowId, finishTag);  // update the latest finishTag for this flow
 		nextTurn = System.currentTimeMillis() + 1000*lenToSend/maxBW;
-		CurrentVirtualTime = Collections.max(flowFinishTags.values());
-		if(!waitingStartTags.isEmpty())
-			waitingStartTags.remove(lowestStartTag);
+		waitingStartTags.remove(startTag);
 
 		mutex.unlock();
 		//System.out.println("Sending: " + lenToSend);

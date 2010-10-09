@@ -15,14 +15,14 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.EOFException;
 
-public class Source2{
+public class Source3a{
 
-  SourceWorker2 workers[];
+  SourceWorker3a workers[];
 
   //-------------------------------------------------
   // Constructor
   //-------------------------------------------------
-  public Source2(int nFlows, 
+  public Source3a(int nFlows, 
                 int bytesToSendPerFlow,
                 NWScheduler sched,
                 float weight[],
@@ -35,7 +35,7 @@ public class Source2{
     Socket s = null;
     OutputStream os = null;
 
-    workers = new SourceWorker2[nFlows];
+    workers = new SourceWorker3a[nFlows];
 
     int ii;
     for(ii = 0; ii < nFlows; ii++){
@@ -47,7 +47,7 @@ public class Source2{
                                                               stats,
                                                               weight[ii],
                                                               sched);
-        workers[ii] = new SourceWorker2(bytesToSendPerFlow, sos);
+        workers[ii] = new SourceWorker3a(bytesToSendPerFlow, sos);
       }
       catch(IOException ioe){
         System.out.println(ioe.toString());

@@ -15,14 +15,14 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.EOFException;
 
-public class Source4{
+public class Source3c{
 
 	SourceWorker workers[];
 
 	//-------------------------------------------------
 	// Constructor
 	//-------------------------------------------------
-	public Source4(int nFlows, 
+	public Source3c(int nFlows, 
 			int bytesToSendPerFlow,
 			NWScheduler sched,
 			float weight[],
@@ -37,8 +37,8 @@ public class Source4{
 
 		workers = new SourceWorker[2*nFlows];
 
-		int ii;
-		for(ii = 0; ii < nFlows; ii++){
+		// create 2 worker threads per flow.
+		for(int ii = 0; ii < nFlows; ii++){
 			try{
 				s = new Socket("localhost", testPort);
 				os = s.getOutputStream();

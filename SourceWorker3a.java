@@ -11,7 +11,7 @@
  */
 import java.io.IOException;
 
-public class SourceWorker2 extends Thread{
+public class SourceWorker3a extends Thread{
 
 	int bytesToSend;
 	ScheduledOutputStream sos;
@@ -23,7 +23,7 @@ public class SourceWorker2 extends Thread{
 	//-------------------------------------------------
 	// Constructor
 	//-------------------------------------------------
-	public SourceWorker2(int bytesToSend, 
+	public SourceWorker3a(int bytesToSend, 
 			ScheduledOutputStream sos)
 	{
 		this.bytesToSend = bytesToSend;

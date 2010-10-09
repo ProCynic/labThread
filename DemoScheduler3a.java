@@ -18,16 +18,16 @@
 import java.util.Random;
 import java.io.IOException;
 
-public class DemoScheduler4{
+public class DemoScheduler3a{
 
 
   static int minPort = 4000;
   static int nPorts = 1000;
-  Source4 source;
+  Source3a source;
   Sink sink;
   Stats stats;
 
-  public DemoScheduler4(NWScheduler sched, int nThreads, int bytesToSendPerThread)
+  public DemoScheduler3a(NWScheduler sched, int nThreads, int bytesToSendPerThread)
   {
     int ii;
     stats = new Stats();
@@ -46,7 +46,7 @@ public class DemoScheduler4{
     for(ii = 0; ii < nThreads; ii++){
       weights[ii] = (float)1.0;
     }
-    source = new Source4(nThreads, bytesToSendPerThread, sched, 
+    source = new Source3a(nThreads, bytesToSendPerThread, sched, 
                         weights, stats, testPort);
   }
 

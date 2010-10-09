@@ -15,7 +15,7 @@
 \setlength{\parindent}{1pc}
 
 \title{Project 2: LabThreads}
-\author{INSERT GROUP MEMBER NAMES HERE}
+\author{Alex Chan and Geoffry Parker}
 
 \begin{document}
 
@@ -23,21 +23,24 @@
 
 \section{Administrative}
 
-Name:
+Names: Geoffrey Parker - grp352 / Alex Chan - ayc87
 
-Slip days used (this project):
+Slip days used (this project): 1
 
-Slip days used (total, including this project):
+Slip days used (total, including this project): 1
 
 
 \section{Source files added}
 
   \begin{itemize}
 
-  \item Example.java -- the Example class illustrates how one could
-  document new classes added...
+  \item Added three new DemoSTFQScheduler classes with mains to do tests 3a, 3b, and 3c.
+  
+  Named DemoSTFQScheduler3a.java, etc.
 
-  \item ...
+  \item Added Source3a.java and Source3c.java to properly run those tests.
+  
+  \item Added SourceWorker3a.java to properly run that test.
 
   \end{itemize}
 
@@ -48,58 +51,64 @@ Slip days used (total, including this project):
 
 \subsection{Overall design}
 
-(About 1/2 page of text here providing an overview of your approach)
+Overall, we added mutex locks and filled out the stats functions.  We simply added locks to the SynchronizedOutputStream functions and a mutex lock.  For Stats, we also added a mutex and locks appropriatley.
+Stats also maintaines a list of hash maps, one per second.  Every time update is called, we calculate how many seconds it has been since Stats was instantiated and write to the appropriate hash map.
+We also maintain a set of all flowIds we have seen so far.  For Stats.print(), we iterate through the list of hashmaps and, for each hashmap,format the contents as a string and print it out.
 
 \subsection{Evaluation}
 
 \centerline{\includegraphics[width=4in]{plot1}}
 
-Discussion of graph here -- is this what is expected? If so, why? If not, why not?
-
-
+This graph is about what could be expected.  For Part 1, all we are really checking is that all the data was outputed and stats reports successfully.  
+We can see on this graph that the total data sent is about one gigabyte, which is how much we were supposed to send.
 
 
 \section{Part 2: Max Scheduler}
 
 \subsection{Overall design}
 
-(About 1/2 page of text here providing an overview of your approach)
+We modified MaxNWScheduler and AlarmThread.  We have the usual mutex locks for syncrhonization.  MaxNWScheduler  waits on the condition until it is time to send the next buffer.  The next time is calculated as stated in the  project specification t1 = t0 + b0/m. AlarmThread will ask the scheduler how long until the next buffer by calling getNextTurn(), sleep until then, and then signal some waiting thread by calling the the procede function of the scheduler.  When waiting threads resume, they update the time at which the next buffer should be sent.
+
+
 
 \subsection{Evaluation}
 
 \centerline{\includegraphics[width=4in]{plot2}}
 
-Discussion of graph here -- is this what is expected? If so, why? If not, why not?
-
-
+We expect two things from this graph: first that all streams output the full number of bytes, and second that the overall bandwidth stays at about the max, which is 80,000.  We would also expect that 
+the flows will have very different bandwidths, and will finish at different times.  We see all of this in this graph.
 
 
 \section{Part 3: STFQ Scheduler}
 
 \subsection{Overall design}
 
-(About 1/2 page of text here providing an overview of your approach)
+This is a two part problem.  We must rate limit the overall bandwidth and ensure that the threads are scheduled fairly.  The rate limiting is the same as Part 2, and we used the same mechanism.  For the 
+fairness requirement, we added a second condition variable, for the threads to wait on until their start time is the lowest start time, as specified in the project description.  We have a hashmap to store the 
+highest finish times for each flow, and a sorted ArrayList to keep track of the start tags of waiting buffers. When a new buffer is recieved, we create its time data, then place it on the list of waiting buffers.
+Then we wait on one condition until the output stream is free, and then wait on the second condition until the current buffer's start time is the lowest.  Then we write out that buffer.  To procede on the second condition, 
+we simply signal it in procede if there is nothing waiting on the first condition.
 
 \subsection{Evaluation}
 
 \centerline{\includegraphics[width=4in]{plot3}}
 
-Discussion of graph here -- is this what is expected? If so, why? If not, why not?
+From this graph, we would expect that the total bandwidth stays near the cap of 80,000, that the flows all have about the same bandwidth, and that all the flows finish at about the same time.  We see all three of these things.  
+The one odd aspect of this graph is that thread 0 drops to 0 data sent every 9 seconds or so.  We don't know why.
 
 
 \centerline{\includegraphics[width=4in]{plot3a}}
 
-Discussion of graph here -- is this what is expected? If so, why? If not, why not?
+This graph produces the expected output.  It maintains its bandwidth within reasonable bounds, each flow produces roughly equivalent output, and the 10 second sleep is in the middle as expected.  Also, because the weights are all the same, the scheduling is fair causing the output to be roughly equal, hitting the 10 second sleep at the same time, and ending at the same time.  One of the flows(the red one) flows oscillates more than the others, but we're not sure why.
 
 
 \centerline{\includegraphics[width=4in]{plot3b}}
 
-Discussion of graph here -- is this what is expected? If so, why? If not, why not?
+In plot3b, there are five flows with increasing weights from 1-5.  Throughout the entire time, the overall bandwidth is maintained as expected.  Also, the bandwidth of each flow is proprotionate to its weight (5 producing more bandwidth than 1).  Because flows with higher weights produce more bandwidth, they finish quicker as seen in the graph.  Lastly, we see quite clearly that each flow is separated according to their weight until it reaches its maximum number of bytes per flow.
 
 
 \centerline{\includegraphics[width=4in]{plot3c}}
-
-Discussion of graph here -- is this what is expected? If so, why? If not, why not?
+The last graph, plot3c, also meets our expectations.  It maintains its overall bandwidth within reasonable bounds.  Also, the flows maintain equal bandwidths relative to each other due to the fairness of being weighted equally.  We also see that even though we are running equal flows, we do not guarantee fairness among the threads and this is shown in the last part of the graph where the bandwidth decreases due to threads finishing.
 
 
 
@@ -109,7 +118,7 @@ Discussion of graph here -- is this what is expected? If so, why? If not, why no
 
 \section{Additional tests and comments}
 
-A discussion of any additional tests you ran or any other comments you have
+For some reason, for all the tests we do on the STFQScheduler, the first flow implement seems to have regular outliers.
 
 
 

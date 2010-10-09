@@ -13,7 +13,7 @@
 public class DemoNullScheduler{
 
   static int nThreads = 10;
-  static int bytesToSendPerThread = 1000000000;
+  static int bytesToSendPerThread = 100000000;
 
 
   //-------------------------------------------------

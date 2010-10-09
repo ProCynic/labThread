@@ -34,6 +34,8 @@ public class Source3c{
 		assert(weight.length == nFlows);
 		Socket s = null;
 		OutputStream os = null;
+		Socket s2 = null;
+		OutputStream os2 = null;
 
 		workers = new SourceWorker[2*nFlows];
 
@@ -47,13 +49,17 @@ public class Source3c{
 						stats,
 						weight[ii],
 						sched);
-				workers[ii] = new SourceWorker(bytesToSendPerFlow, sos);
-				ScheduledOutputStream sos2 = new ScheduledOutputStream(os,
+				workers[ii] = new SourceWorker(bytesToSendPerFlow/2, sos);
+				
+				
+				s2 = new Socket("localhost", testPort);
+				os2 = s2.getOutputStream();
+				ScheduledOutputStream sos2 = new ScheduledOutputStream(os2,
 						ii,
 						stats,
 						weight[ii],
 						sched);
-				workers[(2*nFlows-1)-ii] = new SourceWorker(bytesToSendPerFlow, sos2);
+				workers[(2*nFlows-1)-ii] = new SourceWorker(bytesToSendPerFlow/2, sos2);
 			}
 			catch(IOException ioe){
 				System.out.println(ioe.toString());
@@ -86,7 +92,7 @@ public class Source3c{
 	public void start()
 	{
 		int ii;
-		for(ii = 0; ii < workers.length; ii++){
+		for(ii = 0 ; ii < workers.length; ii++){
 						
 			workers[ii].start();
 		}
